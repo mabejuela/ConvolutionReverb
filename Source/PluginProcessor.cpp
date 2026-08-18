@@ -101,17 +101,22 @@ void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samp
     // max number of samples it will process at one time
     spec.maximumBlockSize = samplesPerBlock;
     
-    // number of channels (mono chains can only handle one channel of audio)
-    spec.numChannels = 1;
+    // number of channels
+    spec.numChannels = 2;
     
     // sample rate
     spec.sampleRate = sampleRate;
     
     gain.prepare(spec);
-//    conv.prepare(spec);
+    conv.prepare(spec);
     
     gain.setGainLinear(1.0f);
 //    gain.setGainDecibels(-24.0f);
+    auto file = juce::File("/Users/mabejuela/Downloads/EchoThief/Nature/Isla Mujeres Cave Quintana Roo.wav");
+    juce::dsp::Convolution::Stereo convStereo = juce::dsp::Convolution::Stereo::yes;
+    juce::dsp::Convolution::Trim convTrim = juce::dsp::Convolution::Trim::no;
+    
+    conv.loadImpulseResponse(file, convStereo, convTrim, 0);
     
 }
 
@@ -180,7 +185,7 @@ void ConvolutionReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     juce::dsp::ProcessContextReplacing<float> context(block);
     
     gain.process(context);
-//    conv.process(context);
+    conv.process(context);
 }
 
 //==============================================================================
