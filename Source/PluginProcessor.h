@@ -52,7 +52,9 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-
+    
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout(); // made static since it doesn't use any member variables
+    juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
 private:
     
     juce::dsp::Gain<float> gain;

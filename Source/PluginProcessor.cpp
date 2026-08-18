@@ -112,7 +112,7 @@ void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samp
     
     gain.setGainLinear(1.0f);
 //    gain.setGainDecibels(-24.0f);
-    auto file = juce::File("/Users/mabejuela/Downloads/EchoThief/Nature/Isla Mujeres Cave Quintana Roo.wav");
+    auto file = juce::File("/Users/mabejuela/Downloads/EchoThief/Domes/Kroc Rotunda University of San Diego California.wav");
     juce::dsp::Convolution::Stereo convStereo = juce::dsp::Convolution::Stereo::yes;
     juce::dsp::Convolution::Trim convTrim = juce::dsp::Convolution::Trim::no;
     
@@ -196,8 +196,8 @@ bool ConvolutionReverbAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ConvolutionReverbAudioProcessor::createEditor()
 {
-    return new ConvolutionReverbAudioProcessorEditor (*this);
-//    return new juce::GenericAudioProcessorEditor(*this);
+//    return new ConvolutionReverbAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -212,6 +212,18 @@ void ConvolutionReverbAudioProcessor::setStateInformation (const void* data, int
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout ConvolutionReverbAudioProcessor::createParameterLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+    
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"Dry/Wet", 1},
+                                                           "Dry/Wet",
+                                                           juce::NormalisableRange<float>(0.f, 100.f, 1.f, 1.f),
+                                                           55.f));
+    
+    return layout;
 }
 
 //==============================================================================
