@@ -95,6 +95,24 @@ void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samp
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    
+    juce::dsp::ProcessSpec spec;
+    
+    // max number of samples it will process at one time
+    spec.maximumBlockSize = samplesPerBlock;
+    
+    // number of channels (mono chains can only handle one channel of audio)
+    spec.numChannels = 1;
+    
+    // sample rate
+    spec.sampleRate = sampleRate;
+    
+    gain.prepare(spec);
+//    conv.prepare(spec);
+    
+    gain.setGainLinear(1.0f);
+//    gain.setGainDecibels(-24.0f);
+    
 }
 
 void ConvolutionReverbAudioProcessor::releaseResources()
@@ -153,9 +171,16 @@ void ConvolutionReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
-
+        
         // ..do something to the data...
     }
+    
+    juce::dsp::AudioBlock<float> block(buffer);
+    
+    juce::dsp::ProcessContextReplacing<float> context(block);
+    
+    gain.process(context);
+//    conv.process(context);
 }
 
 //==============================================================================
@@ -167,6 +192,7 @@ bool ConvolutionReverbAudioProcessor::hasEditor() const
 juce::AudioProcessorEditor* ConvolutionReverbAudioProcessor::createEditor()
 {
     return new ConvolutionReverbAudioProcessorEditor (*this);
+//    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
