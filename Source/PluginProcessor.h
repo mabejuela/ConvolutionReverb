@@ -10,6 +10,11 @@
 
 #include <JuceHeader.h>
 
+//struct ChainSettings
+//{
+//    float mixDryWet { 0 };
+//};
+
 //==============================================================================
 /**
 */
@@ -60,6 +65,10 @@ private:
     juce::dsp::Gain<float> gain;
     
     juce::dsp::Convolution conv;
+    
+    juce::dsp::DryWetMixer<float> mix;
+    
+//    void updateParameter(juce::AudioProcessorValueTreeState& apvts, juce::dsp::AudioBlock<float> block);
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessor)

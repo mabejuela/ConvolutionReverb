@@ -109,8 +109,12 @@ void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samp
     
     gain.prepare(spec);
     conv.prepare(spec);
+    mix.prepare(spec);
     
-    gain.setGainLinear(1.0f);
+    auto wetLatency = conv.getLatency();
+    mix.setWetLatency(wetLatency);
+    
+//    gain.setGainLinear(1.0f);
 //    gain.setGainDecibels(-24.0f);
     auto file = juce::File("/Users/mabejuela/Downloads/EchoThief/Domes/Kroc Rotunda University of San Diego California.wav");
     juce::dsp::Convolution::Stereo convStereo = juce::dsp::Convolution::Stereo::yes;
@@ -166,7 +170,7 @@ void ConvolutionReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
+    
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
     // Make sure to reset the state if your inner loop is processing
@@ -181,11 +185,21 @@ void ConvolutionReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     }
     
     juce::dsp::AudioBlock<float> block(buffer);
-    
     juce::dsp::ProcessContextReplacing<float> context(block);
+
+    float gainValue = apvts.getRawParameterValue("Gain")->load();
+    gain.setGainDecibels(gainValue);
+    
+    float mixValue = apvts.getRawParameterValue("Dry/Wet")->load();
+    mix.setWetMixProportion(mixValue);
+    
+    mix.pushDrySamples(block);
+
+    conv.process(context);
+    
+    mix.mixWetSamples(block);
     
     gain.process(context);
-    conv.process(context);
 }
 
 //==============================================================================
@@ -214,14 +228,38 @@ void ConvolutionReverbAudioProcessor::setStateInformation (const void* data, int
     // whose contents will have been created by the getStateInformation() call.
 }
 
+//void ConvolutionReverbAudioProcessor::updateParameter(juce::AudioProcessorValueTreeState& apvts, juce::dsp::AudioBlock<float> block)
+//{
+////    //    updateParameter();
+//        ChainSettings chainSettings;
+////        
+////    //    \/ same as == chainSettings.mixDryWet = (*apvts.getRawParameterValue("Dry/Wet")).load();
+//        chainSettings.mixDryWet = apvts.getRawParameterValue("Dry/Wet")->load();
+//    
+//    float mixValue = apvts.getRawParameterValue("Dry/Wet")->load();
+//    
+//    juce::dsp::DryWetMixer<float> setWetMixProportion(mixValue);
+////    juce::dsp::DryWetMixer< float >::pushDrySamples    (    block    )    ;
+////    juce::dsp::DryWetMixer<float>::pushDrySamples(block);
+////    chainSettings.pushDrySamples(block);
+//    
+//}
+
 juce::AudioProcessorValueTreeState::ParameterLayout ConvolutionReverbAudioProcessor::createParameterLayout()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"Dry/Wet", 1},
                                                            "Dry/Wet",
-                                                           juce::NormalisableRange<float>(0.f, 100.f, 1.f, 1.f),
-                                                           55.f));
+                                                           juce::NormalisableRange<float>(0.f, 1.f, 0.01f, 1.f), // change from 0-1 into 0-100%
+                                                           0.55f));
+    
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"Gain", 1},
+                                                           "Gain",
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
+                                                           0.f));
+    
+//    layout.add(std::make_unique<juce::AudioParameterFloat(juce::ParameterID(<#const ParameterID &#>), <#const String &parameterName#>, <#NormalisableRange<float> normalisableRange#>, <#float defaultValue#>)
     
     return layout;
 }
