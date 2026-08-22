@@ -40,6 +40,11 @@ private:
     
     CustomRotarySlider gainSlider, mixSlider;
     
+    using APVTS = juce::AudioProcessorValueTreeState;
+    using Attachment = APVTS::SliderAttachment;
+    
+    Attachment gainSliderAttachment, mixSliderAttachment;
+    
     std::vector<juce::Component*> getComps();
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessorEditor)
