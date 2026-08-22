@@ -70,6 +70,8 @@ private:
     
 //    void updateParameter(juce::AudioProcessorValueTreeState& apvts, juce::dsp::AudioBlock<float> block);
     
+    void updateParameters();
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessor)
 };

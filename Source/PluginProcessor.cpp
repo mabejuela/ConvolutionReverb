@@ -116,6 +116,10 @@ void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samp
     
 //    gain.setGainLinear(1.0f);
 //    gain.setGainDecibels(-24.0f);
+    
+    updateParameters();
+    
+    // Convolution
     auto file = juce::File("/Users/mabejuela/Downloads/EchoThief/Domes/Kroc Rotunda University of San Diego California.wav");
     juce::dsp::Convolution::Stereo convStereo = juce::dsp::Convolution::Stereo::yes;
     juce::dsp::Convolution::Trim convTrim = juce::dsp::Convolution::Trim::no;
@@ -187,11 +191,7 @@ void ConvolutionReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     juce::dsp::AudioBlock<float> block(buffer);
     juce::dsp::ProcessContextReplacing<float> context(block);
 
-    float gainValue = apvts.getRawParameterValue("Gain")->load();
-    gain.setGainDecibels(gainValue);
-    
-    float mixValue = apvts.getRawParameterValue("Dry/Wet")->load();
-    mix.setWetMixProportion(mixValue);
+    updateParameters();
     
     mix.pushDrySamples(block);
 
@@ -210,8 +210,8 @@ bool ConvolutionReverbAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ConvolutionReverbAudioProcessor::createEditor()
 {
-//    return new ConvolutionReverbAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new ConvolutionReverbAudioProcessorEditor (*this);
+//    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -220,12 +220,21 @@ void ConvolutionReverbAudioProcessor::getStateInformation (juce::MemoryBlock& de
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    
+    juce::MemoryOutputStream mos(destData, true);
+    apvts.state.writeToStream(mos);
 }
 
 void ConvolutionReverbAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    
+    auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
+    if ( tree.isValid() ) {
+        apvts.replaceState(tree);
+        updateParameters();
+    }
 }
 
 //void ConvolutionReverbAudioProcessor::updateParameter(juce::AudioProcessorValueTreeState& apvts, juce::dsp::AudioBlock<float> block)
@@ -244,6 +253,15 @@ void ConvolutionReverbAudioProcessor::setStateInformation (const void* data, int
 ////    chainSettings.pushDrySamples(block);
 //    
 //}
+
+void ConvolutionReverbAudioProcessor::updateParameters()
+{
+    float gainValue = apvts.getRawParameterValue("Gain")->load();
+    gain.setGainDecibels(gainValue);
+    
+    float mixValue = apvts.getRawParameterValue("Dry/Wet")->load();
+    mix.setWetMixProportion(mixValue);
+}
 
 juce::AudioProcessorValueTreeState::ParameterLayout ConvolutionReverbAudioProcessor::createParameterLayout()
 {

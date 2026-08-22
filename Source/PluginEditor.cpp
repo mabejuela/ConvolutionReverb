@@ -15,7 +15,12 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor (Co
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    
+    for (auto* comp : getComps()) {
+        addAndMakeVisible(comp);
+    }
+    
+    setSize (600, 400);
 }
 
 ConvolutionReverbAudioProcessorEditor::~ConvolutionReverbAudioProcessorEditor()
@@ -37,4 +42,22 @@ void ConvolutionReverbAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    
+    auto bounds = getLocalBounds();
+    auto paramArea = bounds.removeFromTop(bounds.getHeight() * 0.66);
+    
+    // getting half of paramArea for each parameter
+    auto mixArea = paramArea.removeFromLeft(bounds.getWidth() * 0.5);
+    auto gainArea = paramArea.removeFromRight(bounds.getWidth());
+    
+    gainSlider.setBounds(gainArea);
+    mixSlider.setBounds(mixArea);
+}
+
+std::vector<juce::Component*> ConvolutionReverbAudioProcessorEditor::getComps()
+{
+    return {
+        &gainSlider,
+        &mixSlider
+    };
 }
