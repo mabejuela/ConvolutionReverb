@@ -9,13 +9,90 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+void LookAndFeel::drawRotarySlider(juce::Graphics & g,
+                                   int x,
+                                   int y,
+                                   int width,
+                                   int height,
+                                   float sliderPosProportional,
+                                   float rotaryStartAngle,
+                                   float rotaryEndAngle,
+                                   juce::Slider &)
+{
+    using namespace juce;
+    
+    auto bounds = Rectangle<float>(x, y, width, height);
+    
+    g.setColour(Colour(97u, 18u, 167u));
+    g.fillEllipse(bounds);
+    
+    g.setColour(Colour(255u, 154u, 1u));
+    g.drawEllipse(bounds, 1.f);
+    
+    auto center = bounds.getCentre();
+    
+    Path p;
+    
+    Rectangle<float> r;
+    r.setLeft(center.getX() - 2);
+    r.setRight(center.getX() + 2);
+    r.setTop(bounds.getY());
+    r.setBottom(center.getY());
+    
+    p.addRectangle(r); // if you want to rotate something that is going to be drawn, you need a path
+
+    jassert(rotaryStartAngle < rotaryEndAngle);
+    
+    auto sliderAngRad = jmap(sliderPosProportional, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
+    
+    p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
+    
+    g.fillPath(p);
+}
+//==============================================================================
+void RotarySliderWithLabels::paint(juce::Graphics &g)
+{
+    using namespace juce;
+    
+    auto startAng = degreesToRadians(180.f + 45.f);
+    auto endAng = degreesToRadians(180.f - 45.f) + MathConstants<float>::twoPi;
+    
+    auto range = getRange();
+    
+    auto sliderBounds = getSliderBounds();
+    
+    getLookAndFeel().drawRotarySlider(g,
+                                      sliderBounds.getX(),
+                                      sliderBounds.getY(),
+                                      sliderBounds.getWidth(),
+                                      sliderBounds.getHeight(),
+                                      jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
+                                      startAng,
+                                      endAng,
+                                      *this);
+}
+
+juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
+{
+    return getLocalBounds();
+}
+
 //==============================================================================
 ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor (ConvolutionReverbAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
-gainSliderAttachment(audioProcessor.apvts, "Gain", gainSlider), mixSliderAttachment(audioProcessor.apvts, "Dry/Wet", mixSlider)
+gainSlider(*audioProcessor.apvts.getParameter("Gain"), "dB"),
+mixSlider(*audioProcessor.apvts.getParameter("Dry/Wet"), "%"),
+gainSliderAttachment(audioProcessor.apvts, "Gain", gainSlider),
+mixSliderAttachment(audioProcessor.apvts, "Dry/Wet", mixSlider)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
+    
+    gainSlider.labels.add({0.f, "20Hz"});
+    gainSlider.labels.add({1.f, "20kHz"});
+    
+    mixSlider.labels.add({0.f, "-24dB"});
+    mixSlider.labels.add({1.f, "24dB"});
     
     for (auto* comp : getComps()) {
         addAndMakeVisible(comp);
@@ -32,11 +109,29 @@ ConvolutionReverbAudioProcessorEditor::~ConvolutionReverbAudioProcessorEditor()
 void ConvolutionReverbAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
+//    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    using namespace juce;
+    
+    g.fillAll(Colours::black);
+    
+    auto bounds = getLocalBounds();
+    auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.33);
+    
+    auto w = responseArea.getWidth();
+    
     g.setColour (juce::Colours::white);
     g.setFont (juce::FontOptions (15.0f));
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+//    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    
+//    auto bounds = getLocalBounds();
+//    auto paramArea = bounds.removeFromTop(bounds.getHeight() * 0.66);
+//    
+//    // getting half of paramArea for each parameter
+//    auto mixArea = paramArea.removeFromLeft(bounds.getWidth() * 0.5);
+//    auto gainArea = paramArea.removeFromRight(bounds.getWidth());
+//    
+//    g.drawFittedText("Dry/Wet", mixArea, juce::Justification::centredBottom, 1);
+//    g.drawFittedText("Gain", gainArea, juce::Justification::centredBottom, 1);
 }
 
 void ConvolutionReverbAudioProcessorEditor::resized()
