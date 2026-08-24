@@ -80,10 +80,10 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
     
     auto sliderBounds = getSliderBounds();
     
-    g.setColour(Colours::red);
-    g.drawRect(getLocalBounds());
-    g.setColour(Colours::yellow);
-    g.drawRect(sliderBounds);
+//    g.setColour(Colours::red);
+//    g.drawRect(getLocalBounds());
+//    g.setColour(Colours::yellow);
+//    g.drawRect(sliderBounds);
     
     getLookAndFeel().drawRotarySlider(g,
                                       sliderBounds.getX(),
@@ -113,7 +113,23 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
 
 juce::String RotarySliderWithLabels::getDisplayString() const
 {
-    return juce::String(getValue());
+    juce::String str;
+    
+    if ( auto* floatParam = dynamic_cast<juce::AudioParameterFloat*>(param)) {
+        if (param->getName(200) == "Dry/Wet") {
+            str = juce::String(getValue() * 100);
+            str << suffix;
+        }
+        else{
+            str = juce::String(getValue());
+            str << " " << suffix;
+        }
+    }
+    else{
+        jassertfalse;
+    }
+    
+    return str;
 }
 
 //==============================================================================
