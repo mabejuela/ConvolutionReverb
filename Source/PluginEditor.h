@@ -79,12 +79,18 @@ private:
     
     RotarySliderWithLabels gainSlider, mixSlider;
     
+    juce::TextButton fileSelectButton;
+    
     using APVTS = juce::AudioProcessorValueTreeState;
     using Attachment = APVTS::SliderAttachment;
     
     Attachment gainSliderAttachment, mixSliderAttachment;
     
     std::vector<juce::Component*> getComps();
+    
+    std::unique_ptr<juce::FileChooser> myChooser;
+
+    void loadMyFile();
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessorEditor)
 };

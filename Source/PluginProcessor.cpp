@@ -121,10 +121,11 @@ void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samp
     
     // Convolution
     auto file = juce::File("/Users/mabejuela/Downloads/EchoThief/Domes/Kroc Rotunda University of San Diego California.wav");
-    juce::dsp::Convolution::Stereo convStereo = juce::dsp::Convolution::Stereo::yes;
-    juce::dsp::Convolution::Trim convTrim = juce::dsp::Convolution::Trim::no;
-    
-    conv.loadImpulseResponse(file, convStereo, convTrim, 0);
+//    juce::dsp::Convolution::Stereo convStereo = juce::dsp::Convolution::Stereo::yes;
+//    juce::dsp::Convolution::Trim convTrim = juce::dsp::Convolution::Trim::no;
+//    
+//    conv.loadImpulseResponse(file, convStereo, convTrim, 0);
+    loadMyImpulseResponse(file);
     
 }
 
@@ -280,6 +281,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout ConvolutionReverbAudioProces
 //    layout.add(std::make_unique<juce::AudioParameterFloat(juce::ParameterID(<#const ParameterID &#>), <#const String &parameterName#>, <#NormalisableRange<float> normalisableRange#>, <#float defaultValue#>)
     
     return layout;
+}
+
+void ConvolutionReverbAudioProcessor::loadMyImpulseResponse(juce::File file)
+{
+    juce::dsp::Convolution::Stereo convStereo = juce::dsp::Convolution::Stereo::yes;
+    juce::dsp::Convolution::Trim convTrim = juce::dsp::Convolution::Trim::no;
+    
+    conv.loadImpulseResponse(file, convStereo, convTrim, 0);
 }
 
 //==============================================================================

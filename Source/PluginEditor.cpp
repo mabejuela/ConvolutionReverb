@@ -64,10 +64,8 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
         g.setColour(Colours::white);
         g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
     }
-    
-    
-    
-    }
+}
+
 //==============================================================================
 void RotarySliderWithLabels::paint(juce::Graphics &g)
 {
@@ -149,6 +147,9 @@ mixSliderAttachment(audioProcessor.apvts, "Dry/Wet", mixSlider)
     mixSlider.labels.add({0.f, "-24dB"});
     mixSlider.labels.add({1.f, "24dB"});
     
+    fileSelectButton.setButtonText("Select the impulse response you want to load... (.wav file)");
+    fileSelectButton.changeWidthToFitText();
+    
     for (auto* comp : getComps()) {
         addAndMakeVisible(comp);
     }
@@ -196,6 +197,9 @@ void ConvolutionReverbAudioProcessorEditor::resized()
     
     auto bounds = getLocalBounds();
     auto paramArea = bounds.removeFromTop(bounds.getHeight() * 0.66);
+    auto bottomBit = bounds.removeFromBottom(bounds.getHeight() * 0.4);
+    auto buttonArea = bounds.removeFromBottom(bounds.getHeight() * 0.33);
+//    auto buttonArea = buttonArea.removeFromTop(bounds.getHeight() * 0.66);
     
     // getting half of paramArea for each parameter
     auto mixArea = paramArea.removeFromLeft(bounds.getWidth() * 0.5);
@@ -203,12 +207,32 @@ void ConvolutionReverbAudioProcessorEditor::resized()
     
     gainSlider.setBounds(gainArea);
     mixSlider.setBounds(mixArea);
+    fileSelectButton.setBounds(buttonArea);
+}
+
+void ConvolutionReverbAudioProcessorEditor::loadMyFile()
+{
+    myChooser = std::make_unique<juce::FileChooser> ("Select the impulse response you want to load... (.wav file)",
+                                               juce::File::getSpecialLocation (juce::File::userHomeDirectory),
+                                               "*.wav");
+
+    auto folderChooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+    myChooser->launchAsync (folderChooserFlags, [this] (const juce::FileChooser& chooser)
+    {
+        juce::File myFile(chooser.getResult());
+        
+        if (myFile.existsAsFile()) {
+            audioProcessor.loadMyImpulseResponse(myFile);
+        }
+    });
 }
 
 std::vector<juce::Component*> ConvolutionReverbAudioProcessorEditor::getComps()
 {
     return {
         &gainSlider,
-        &mixSlider
+        &mixSlider,
+        &fileSelectButton
     };
 }

@@ -60,6 +60,8 @@ public:
     
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout(); // made static since it doesn't use any member variables
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
+    
+    void loadMyImpulseResponse(juce::File file);
 private:
     
     juce::dsp::Gain<float> gain;
