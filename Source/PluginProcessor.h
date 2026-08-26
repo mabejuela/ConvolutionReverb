@@ -62,6 +62,8 @@ public:
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
     
     void loadMyImpulseResponse(juce::File file);
+    
+    bool hasLoadedIR;
 private:
     
     juce::dsp::Gain<float> gain;

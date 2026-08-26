@@ -120,12 +120,15 @@ void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samp
     updateParameters();
     
     // Convolution
-    auto file = juce::File("/Users/mabejuela/Downloads/EchoThief/Domes/Kroc Rotunda University of San Diego California.wav");
+//    auto file = juce::File("/Users/mabejuela/Downloads/EchoThief/Domes/Kroc Rotunda University of San Diego California.wav");
+    
 //    juce::dsp::Convolution::Stereo convStereo = juce::dsp::Convolution::Stereo::yes;
 //    juce::dsp::Convolution::Trim convTrim = juce::dsp::Convolution::Trim::no;
 //    
 //    conv.loadImpulseResponse(file, convStereo, convTrim, 0);
-    loadMyImpulseResponse(file);
+//    loadMyImpulseResponse(file);
+    
+    hasLoadedIR = false;
     
 }
 
@@ -289,6 +292,8 @@ void ConvolutionReverbAudioProcessor::loadMyImpulseResponse(juce::File file)
     juce::dsp::Convolution::Trim convTrim = juce::dsp::Convolution::Trim::no;
     
     conv.loadImpulseResponse(file, convStereo, convTrim, 0);
+    
+    hasLoadedIR = true;
 }
 
 //==============================================================================

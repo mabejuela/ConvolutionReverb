@@ -23,10 +23,12 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
     
     auto bounds = Rectangle<float>(x, y, width, height);
     
-    g.setColour(Colour(97u, 18u, 167u));
+//    g.setColour(Colour(97u, 18u, 167u));
+    g.setColour(Colour(84u, 84u, 84u));
     g.fillEllipse(bounds);
     
-    g.setColour(Colour(255u, 154u, 1u));
+//    g.setColour(Colour(255u, 154u, 1u));
+    g.setColour(Colour(154u, 117u, 181u));
     g.drawEllipse(bounds, 1.f);
     
     if ( auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider)) {
@@ -78,10 +80,10 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
     
     auto sliderBounds = getSliderBounds();
     
-//    g.setColour(Colours::red);
-//    g.drawRect(getLocalBounds());
-//    g.setColour(Colours::yellow);
-//    g.drawRect(sliderBounds);
+    g.setColour(Colours::red);
+    g.drawRect(getLocalBounds());
+    g.setColour(Colours::yellow);
+    g.drawRect(sliderBounds);
     
     getLookAndFeel().drawRotarySlider(g,
                                       sliderBounds.getX(),
@@ -147,8 +149,12 @@ mixSliderAttachment(audioProcessor.apvts, "Dry/Wet", mixSlider)
     mixSlider.labels.add({0.f, "-24dB"});
     mixSlider.labels.add({1.f, "24dB"});
     
-    fileSelectButton.setButtonText("Select the impulse response you want to load... (.wav file)");
+    fileSelectButton.setButtonText("Select the impulse response you want to load... (.wav file) \n (No IR loaded)");
     fileSelectButton.changeWidthToFitText();
+    
+    fileSelectButton.onClick = [this] () {
+        loadMyFile();
+    };
     
     for (auto* comp : getComps()) {
         addAndMakeVisible(comp);
@@ -197,17 +203,22 @@ void ConvolutionReverbAudioProcessorEditor::resized()
     
     auto bounds = getLocalBounds();
     auto paramArea = bounds.removeFromTop(bounds.getHeight() * 0.66);
-    auto bottomBit = bounds.removeFromBottom(bounds.getHeight() * 0.4);
-    auto buttonArea = bounds.removeFromBottom(bounds.getHeight() * 0.33);
-//    auto buttonArea = buttonArea.removeFromTop(bounds.getHeight() * 0.66);
     
     // getting half of paramArea for each parameter
     auto mixArea = paramArea.removeFromLeft(bounds.getWidth() * 0.5);
     auto gainArea = paramArea.removeFromRight(bounds.getWidth());
     
+    auto size = juce::jmin(bounds.getWidth(), bounds.getHeight());
+    
+    size -= 14 * 5; // text height * 5
+    
+    juce::Rectangle<int> buttonBounds;
+    buttonBounds.setSize(bounds.getWidth() * 0.7, size);
+    buttonBounds.setCentre(bounds.getCentreX(), bounds.getCentreY());
+    
     gainSlider.setBounds(gainArea);
     mixSlider.setBounds(mixArea);
-    fileSelectButton.setBounds(buttonArea);
+    fileSelectButton.setBounds(buttonBounds);
 }
 
 void ConvolutionReverbAudioProcessorEditor::loadMyFile()
