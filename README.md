@@ -1,4 +1,4 @@
-<img width="600" height="419" alt="Screenshot 2026-08-29 at 2 56 39 PM" src="https://github.com/user-attachments/assets/b0a2ed26-6ca0-43c3-9ea3-ca551dcf9e01" />
+<img width="602" height="426" alt="Screenshot 2026-08-30 at 12 17 58 AM" src="https://github.com/user-attachments/assets/1a9c0fd1-f75c-4f21-91b6-447de242a5bf" />
 
 Convolution Reverb is an audio plugin for real-time convolution reverb. It mimics realistic acoustic spaces by convolving your track's incoming audio with an impulse response (IR), which is the recorded reverberation of a real room or space, captured from anywhere a user chooses. Just load your own IR file directly into the plugin to recreate the reverb of any space someone has recorded and shared, with real-time control over dry/wet mix and gain.
 
